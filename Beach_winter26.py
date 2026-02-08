@@ -16,10 +16,11 @@ match_stage = st.sidebar.radio("Match Stage", ["Group Stage", "Final"])
 
 
 stats_keys = [
-    'T1_P1_digs', 'T1_P2_digs', 'T1_P1_atk', 'T1_P2_atk', 'T1_P1_ace', 'T1_P2_ace', 'T1_P1_miss', 'T1_P2_miss','T1_P1_srvnet','T1_P2_srvnet',
-    'T2_P1_digs', 'T2_P2_digs', 'T2_P1_atk', 'T2_P2_atk', 'T2_P1_ace', 'T2_P2_ace', 'T2_P1_miss', 'T2_P2_miss','T2_P2_srvnet','T2_P1_srvnet'
-    ,'Score_T1', 'Score_T2','T1_P2_srvout','T1_P1_srvout','T2_P2_srvout','T1_P1_srvout',
+    'T1_P1_digs', 'T1_P2_digs', 'T1_P1_atk', 'T1_P2_atk', 'T1_P1_ace', 'T1_P2_ace', 'T1_P1_miss', 'T1_P2_miss', 'T1_P1_srvnet', 'T1_P2_srvnet',
+    'T2_P1_digs', 'T2_P2_digs', 'T2_P1_atk', 'T2_P2_atk', 'T2_P1_ace', 'T2_P2_ace', 'T2_P1_miss', 'T2_P2_miss', 'T2_P1_srvnet', 'T2_P2_srvnet',
+    'Score_T1', 'Score_T2', 'Sets_T1', 'Sets_T2', 'T1_P1_srvout', 'T1_P2_srvout', 'T2_P1_srvout', 'T2_P2_srvout'
 ]
+
 
 if 'score_history' not in st.session_state:
     st.session_state.score_history = []
@@ -39,9 +40,14 @@ def stat_module(label, key):
         if st.session_state[key] > 0:
             st.session_state[key] -= 1
             st.rerun()
-
+def check_set_winner(score_a, score_b, limit):
+    if score_a >= limit and (score_a - score_b) >= 2:
+        return True
+    return False
+    
 st.title(f"🏐 {t1_name} VS {t2_name}")
 st.caption(f"Tournament Stage: {match_stage}")
+st.subheader(f"🏆 Sets: {st.session_state.Sets_T1} — {st.session_state.Sets_T2}")
 
 col_s1, col_s2 = st.columns(2)
 with col_s1:
