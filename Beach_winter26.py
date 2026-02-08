@@ -28,7 +28,7 @@ for key in stats_keys:
     if key not in st.session_state:
         st.session_state[key] = 0
 
-# --- دالة التحكم بالإحصائيات (الزيادة والنقصان) ---
+
 def stat_module(label, key):
     st.write(f"**{label}: {st.session_state[key]}**")
     c_inc, c_dec = st.columns(2)
@@ -77,6 +77,7 @@ with tab1:
         stat_module("Aces", "T1_P1_ace")
         stat_module("Missed Srv", "T1_P1_miss")
         
+        
     with p2:
         st.subheader("Player 2")
         stat_module("Digs", "T1_P2_digs")
@@ -114,6 +115,34 @@ if st.sidebar.button("💾 SAVE MATCH"):
     st.sidebar.success("Saved!")
 
 if st.sidebar.button("🧹 New Match"):
-    for k in stats_keys: st.session_state[k] = 0
+    for k in stats_keys: 
+        st.session_state[k] = 0
     st.session_state.score_history = []
     st.rerun()
+
+st.divider()
+t1_p = (st.session_state.get('T1_P1_ace', 0) + st.session_state.get('T1_P2_ace', 0)) * 2 + \
+       (st.session_state.get('T1_P1_atk', 0) + st.session_state.get('T1_P2_atk', 0)) + \
+       (st.session_state.get('T1_P1_digs', 0) + st.session_state.get('T1_P2_digs', 0))
+
+t2_p = (st.session_state.get('T2_P1_ace', 0) + st.session_state.get('T2_P2_ace', 0)) * 2 + \
+       (st.session_state.get('T2_P1_atk', 0) + st.session_state.get('T2_P2_atk', 0)) + \
+       (st.session_state.get('T2_P1_digs', 0) + st.session_state.get('T2_P2_digs', 0))
+
+st.header("📊 Match Momentum")
+col_m1, col_m2 = st.columns(2)
+
+with col_m1:
+    st.write(f"**{t1_name} Power Index: {t1_p}**")
+    st.progress(min(t1_p * 4, 100) if t1_p > 0 else 0)
+
+with col_m2:
+    st.write(f"**{t2_name} Power Index: {t2_p}**")
+    st.progress(min(t2_p * 4, 100) if t2_p > 0 else 0)
+
+if t1_p > t2_p:
+    st.success(f"🔥 {t1_name} is Dominating!")
+elif t2_p > t1_p:
+    st.warning(f"⚠️ {t2_name} has the Momentum")
+else:
+    st.info("⚖️ The game is Balanced")
