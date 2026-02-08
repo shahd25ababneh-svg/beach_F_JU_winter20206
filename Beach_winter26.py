@@ -18,7 +18,7 @@ match_stage = st.sidebar.radio("Match Stage", ["Group Stage", "Final"])
 stats_keys = [
     'T1_P1_digs', 'T1_P2_digs', 'T1_P1_atk', 'T1_P2_atk', 'T1_P1_ace', 'T1_P2_ace', 'T1_P1_miss', 'T1_P2_miss','T1_P1_srvnet','T1_P2_srvnet',
     'T2_P1_digs', 'T2_P2_digs', 'T2_P1_atk', 'T2_P2_atk', 'T2_P1_ace', 'T2_P2_ace', 'T2_P1_miss', 'T2_P2_miss','T2_P2_srvnet','T2_P1_srvnet'
-    ،'Score_T1', 'Score_T2','T1_P2_srvout','T1_P1_srvout','T2_P2_srvout','T1_P1_srvout',
+    ,'Score_T1', 'Score_T2','T1_P2_srvout','T1_P1_srvout','T2_P2_srvout','T1_P1_srvout',
 ]
 
 if 'score_history' not in st.session_state:
