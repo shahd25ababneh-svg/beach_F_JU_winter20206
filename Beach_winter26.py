@@ -8,12 +8,10 @@ engine = create_engine('sqlite:///beach_volley_live_2026.db')
 
 st.set_page_config(page_title="JU Live Scout 2026", layout="wide")
 
-
 st.sidebar.header("📋 Match Setup")
 t1_name = st.sidebar.text_input("Home Team Name", value="Team 1")
 t2_name = st.sidebar.text_input("Away Team Name", value="Team 2")
 match_stage = st.sidebar.radio("Match Stage", ["Group Stage", "Final"])
-
 
 stats_keys = [
     'T1_P1_digs', 'T1_P2_digs', 'T1_P1_atk', 'T1_P2_atk', 'T1_P1_ace', 'T1_P2_ace', 'T1_P1_miss', 'T1_P2_miss', 'T1_P1_srvnet', 'T1_P2_srvnet',
@@ -21,14 +19,12 @@ stats_keys = [
     'Score_T1', 'Score_T2', 'Sets_T1', 'Sets_T2', 'T1_P1_srvout', 'T1_P2_srvout', 'T2_P1_srvout', 'T2_P2_srvout'
 ]
 
-
 if 'score_history' not in st.session_state:
     st.session_state.score_history = []
 
 for key in stats_keys:
     if key not in st.session_state:
         st.session_state[key] = 0
-
 
 def stat_module(label, key):
     st.write(f"**{label}: {st.session_state[key]}**")
@@ -40,31 +36,41 @@ def stat_module(label, key):
         if st.session_state[key] > 0:
             st.session_state[key] -= 1
             st.rerun()
+
 def check_set_winner(score_a, score_b, limit):
     if score_a >= limit and (score_a - score_b) >= 2:
         return True
     return False
-    
+
 st.title(f"🏐 {t1_name} VS {t2_name}")
 st.caption(f"Tournament Stage: {match_stage}")
+
+score_limit = 15 if match_stage == "Group Stage" else 21
+
 st.subheader(f"🏆 Sets: {st.session_state.Sets_T1} — {st.session_state.Sets_T2}")
 
 col_s1, col_s2 = st.columns(2)
 with col_s1:
-    st.metric(t1_name, st.session_state.Score_T1)
-    if st.button(f"Point {t1_name} ➕", key="p1", use_container_width=True):
+    st.metric(f"{t1_name} (Min: {score_limit})", st.session_state.Score_T1)
+    if st.button(f"Point {t1_name} ➕", key="p1_main", use_container_width=True):
         st.session_state.Score_T1 += 1
         st.session_state.score_history.append({"Time": datetime.now(), t1_name: st.session_state.Score_T1, t2_name: st.session_state.Score_T2})
+        if check_set_winner(st.session_state.Score_T1, st.session_state.Score_T2, score_limit):
+            st.balloons()
+            st.session_state.Sets_T1 += 1
         st.rerun()
     if st.button(f"Undo {t1_name} ➖", key="u1"):
         if st.session_state.Score_T1 > 0: st.session_state.Score_T1 -= 1
         st.rerun()
 
 with col_s2:
-    st.metric(t2_name, st.session_state.Score_T2)
-    if st.button(f"Point {t2_name} ➕", key="p2", use_container_width=True):
+    st.metric(f"{t2_name} (Min: {score_limit})", st.session_state.Score_T2)
+    if st.button(f"Point {t2_name} ➕", key="p2_main", use_container_width=True):
         st.session_state.Score_T2 += 1
         st.session_state.score_history.append({"Time": datetime.now(), t1_name: st.session_state.Score_T1, t2_name: st.session_state.Score_T2})
+        if check_set_winner(st.session_state.Score_T2, st.session_state.Score_T1, score_limit):
+            st.balloons()
+            st.session_state.Sets_T2 += 1
         st.rerun()
     if st.button(f"Undo {t2_name} ➖", key="u2"):
         if st.session_state.Score_T2 > 0: st.session_state.Score_T2 -= 1
@@ -82,8 +88,6 @@ with tab1:
         stat_module("Attacks", "T1_P1_atk")
         stat_module("Aces", "T1_P1_ace")
         stat_module("Missed Srv", "T1_P1_miss")
-        
-        
     with p2:
         st.subheader("Player 2")
         stat_module("Digs", "T1_P2_digs")
@@ -112,7 +116,6 @@ if st.session_state.score_history:
     fig = px.line(df_h, x="Time", y=[t1_name, t2_name], title="Match Momentum", markers=True)
     st.plotly_chart(fig, use_container_width=True)
 
-
 st.sidebar.divider()
 if st.sidebar.button("💾 SAVE MATCH"):
     final_data = {k: [st.session_state[k]] for k in stats_keys}
@@ -121,12 +124,10 @@ if st.sidebar.button("💾 SAVE MATCH"):
     st.sidebar.success("Saved!")
 
 if st.sidebar.button("🧹 New Match"):
-    for k in stats_keys: 
-        st.session_state[k] = 0
+    for k in stats_keys: st.session_state[k] = 0
     st.session_state.score_history = []
     st.rerun()
 
-st.divider()
 t1_p = (st.session_state.get('T1_P1_ace', 0) + st.session_state.get('T1_P2_ace', 0)) * 2 + \
        (st.session_state.get('T1_P1_atk', 0) + st.session_state.get('T1_P2_atk', 0)) + \
        (st.session_state.get('T1_P1_digs', 0) + st.session_state.get('T1_P2_digs', 0))
@@ -152,3 +153,4 @@ elif t2_p > t1_p:
     st.warning(f"⚠️ {t2_name} has the Momentum")
 else:
     st.info("⚖️ The game is Balanced")
+              
